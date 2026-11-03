@@ -1,0 +1,17 @@
+---
+import { t, langDe } from '../../i18n/ui';
+interface Props {
+  descargas: { pdf: boolean; epub: boolean };
+}
+const lang = langDe(Astro.currentLocale);
+const { descargas } = Astro.props;
+---
+
+{
+  (descargas.pdf || descargas.epub) && (
+    <section>
+      <h2>{t(lang, 'pub.descargas')}</h2>
+      <p>{t(lang, 'pub.descargas.pronto')}</p>
+    </section>
+  )
+}

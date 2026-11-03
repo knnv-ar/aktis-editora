@@ -1,0 +1,85 @@
+---
+import { getEntry, render } from 'astro:content';
+import Base from '../../../../layouts/Base.astro';
+import Ficha from '../../../../components/ui/Ficha.astro';
+import { componentesMdx } from '../../../../components/mdx';
+import { numeros, articulos, autoresDe, nombresDe, formatoFecha } from '../../../../lib/contenido';
+import { t, type Clave } from '../../../../i18n/ui';
+
+export async function getStaticPaths() {
+  return (await numeros()).map((numero) => {
+    const [revista, carpeta] = numero.id.split('/');
+    return { params: { revista, numero: carpeta }, props: { numero } };
+  });
+}
+
+const { numero } = Astro.props;
+const n = numero.data;
+const revista = await getEntry(n.revista);
+const arts = (await articulos())
+  .filter((x) => x.numero.id === numero.id)
+  .map((x) => x.articulo)
+  .sort((a, b) => a.data.orden - b.data.orden);
+const SECCIONES = ['dossier', 'articulos', 'resenas', 'entrevistas'] as const;
+const porSeccion = await Promise.all(
+  SECCIONES.map(async (s) => ({
+    seccion: s,
+    items: await Promise.all(
+      arts
+        .filter((a) => a.data.seccion === s)
+        .map(async (a) => ({ a, autores: nombresDe(await autoresDe(a.data.autores)) })),
+    ),
+  })),
+);
+Astro.locals.archivoEntrada = numero.filePath;
+const { Content } = await render(numero);
+---
+
+<Base titulo={`${n.titulo} · ${revista?.data.nombre}`} descripcion={n.resumen}>
+  <span class="etiqueta">
+    <a href={`/revistas/${revista?.id}/`}>{revista?.data.nombre}</a> · Vol. {n.volumen}, n.º {n.numero} ({n.anio})
+  </span>
+  <h1>{n.titulo}</h1>
+  <p class="meta">{t('es', 'pub.publicado')} {formatoFecha(n.fecha_publicacion)}</p>
+  {n.estado !== 'publicado' && <p class="aviso-borrador">{t('es', 'pub.borrador')}</p>}
+
+  <div class="prosa"><Content components={componentesMdx} /></div>
+
+  {
+    porSeccion
+      .filter((s) => s.items.length > 0)
+      .map((s) => (
+        <section class="seccion">
+          <h2>{t('es', `revista.secciones.${s.seccion}` as Clave)}</h2>
+          <ul>
+            {s.items.map(({ a, autores }) => (
+              <li>
+                <Ficha
+                  href={`/revistas/${a.id}/`}
+                  titulo={a.data.titulo}
+                  autores={autores}
+                  resumen={a.data.resumen}
+                  borrador={a.data.estado !== 'publicado'}
+                />
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))
+  }
+</Base>
+
+<style>
+  .seccion ul {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 1.75rem;
+    max-width: 44rem;
+  }
+  .seccion h2 {
+    border-bottom: 1px solid var(--linea);
+    padding-bottom: 0.4rem;
+    margin-top: 2.5rem;
+  }
+</style>

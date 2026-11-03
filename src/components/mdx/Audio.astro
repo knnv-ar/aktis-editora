@@ -1,0 +1,52 @@
+---
+// <Audio src="./audio/pieza.mp3" titulo="Título" transcripcion="./audio/pieza.txt" />
+import { audio, textoPlano } from '../../lib/medios';
+
+interface Props {
+  src: string;
+  titulo: string;
+  transcripcion?: string;
+}
+const { src, titulo, transcripcion } = Astro.props;
+const url = audio(Astro.locals.archivoEntrada, src);
+if (!url) throw new Error(`Audio: no se encontró el archivo «${src}» (${Astro.locals.archivoEntrada})`);
+const texto = transcripcion ? textoPlano(Astro.locals.archivoEntrada, transcripcion) : null;
+---
+
+<figure class="audio" data-pagefind-ignore>
+  <figcaption>{titulo}</figcaption>
+  <audio controls preload="metadata" src={url}></audio>
+  {
+    texto && (
+      <details>
+        <summary>Transcripción</summary>
+        <p>{texto}</p>
+      </details>
+    )
+  }
+</figure>
+
+<style>
+  .audio {
+    margin: 2em 0;
+    padding: 1rem;
+    background: var(--papel-2);
+    border: 1px solid var(--linea);
+    border-radius: var(--radio);
+    font-family: var(--sans);
+  }
+  figcaption {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  audio {
+    width: 100%;
+  }
+  details {
+    margin-top: 0.75rem;
+    font-size: 0.9rem;
+  }
+  details p {
+    white-space: pre-line;
+  }
+</style>

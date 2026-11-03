@@ -1,0 +1,10 @@
+---
+import Base from '../layouts/Base.astro';
+import { t } from '../i18n/ui';
+---
+
+<Base titulo={t('es', '404.titulo')}>
+  <h1>{t('es', '404.titulo')}</h1>
+  <p>{t('es', '404.texto')}</p>
+  <p><a class="boton" href="/">{t('es', '404.volver')}</a></p>
+</Base>

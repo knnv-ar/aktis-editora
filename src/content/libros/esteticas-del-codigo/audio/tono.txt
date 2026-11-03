@@ -1,0 +1,1 @@
+Tono sinusoidal de 440 Hz durante dos segundos.

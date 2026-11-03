@@ -1,0 +1,42 @@
+---
+// <Figura src="./img/foto.jpg" alt="Descripción" pie="Epígrafe" />
+import { Image } from 'astro:assets';
+import { imagen } from '../../lib/medios';
+
+interface Props {
+  src: string;
+  alt: string;
+  pie?: string;
+  /** "texto" (ancho de columna, por defecto) o "amplia" (desborda la columna). */
+  ancho?: 'texto' | 'amplia';
+}
+const { src, alt, pie, ancho = 'texto' } = Astro.props;
+const img = imagen(Astro.locals.archivoEntrada, src);
+if (!img) throw new Error(`Figura: no se encontró la imagen «${src}» (${Astro.locals.archivoEntrada})`);
+---
+
+<figure class:list={['figura', `figura--${ancho}`]}>
+  <Image src={img} alt={alt} widths={[480, 800, 1200, 1600]} sizes="(max-width: 48rem) 100vw, 48rem" />
+  {pie && <figcaption>{pie}</figcaption>}
+</figure>
+
+<style>
+  .figura {
+    margin: 2em 0;
+  }
+  .figura--amplia {
+    margin-inline: min(0px, (40rem - 100vw) / 4);
+  }
+  .figura img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 3px;
+  }
+  figcaption {
+    margin-top: 0.5em;
+    font-family: var(--sans);
+    font-size: 0.85rem;
+    color: var(--tinta-2);
+  }
+</style>

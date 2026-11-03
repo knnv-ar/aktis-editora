@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 300" font-family="Inter, sans-serif" font-size="22">
+  <rect width="800" height="300" fill="#efe8dc"/>
+  <g fill="#f7f3ec" stroke="#1f1b16" stroke-width="2">
+    <rect x="40" y="110" width="180" height="80" rx="8"/>
+    <rect x="310" y="110" width="180" height="80" rx="8"/>
+    <rect x="580" y="110" width="180" height="80" rx="8"/>
+  </g>
+  <g stroke="#9a5b00" stroke-width="4" marker-end="url(#f)">
+    <line x1="222" y1="150" x2="300" y2="150"/>
+    <line x1="492" y1="150" x2="570" y2="150"/>
+  </g>
+  <defs><marker id="f" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#9a5b00"/></marker></defs>
+  <g fill="#1f1b16" text-anchor="middle">
+    <text x="130" y="158">Semilla</text>
+    <text x="400" y="158">Reglas</text>
+    <text x="670" y="158">Obra</text>
+  </g>
+</svg>

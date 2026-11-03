@@ -1,0 +1,49 @@
+---
+import { getEntry } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Ficha from '../../components/ui/Ficha.astro';
+import Tapa from '../../components/ui/Tapa.astro';
+import { libros, autoresDe, nombresDe } from '../../lib/contenido';
+import { t } from '../../i18n/ui';
+
+const lista = await Promise.all(
+  (await libros()).map(async (l) => ({
+    libro: l,
+    autores: nombresDe(await autoresDe(l.data.autores)),
+    coleccion: await getEntry(l.data.coleccion),
+  })),
+);
+---
+
+<Base titulo={t('es', 'lista.libros')}>
+  <h1>{t('es', 'lista.libros')}</h1>
+  {
+    lista.length === 0 ? (
+      <p>{t('es', 'lista.vacia')}</p>
+    ) : (
+      <ul class="grilla">
+        {lista.map(({ libro, autores, coleccion }) => (
+          <li>
+            <Ficha
+              href={`/libros/${libro.id}/`}
+              titulo={libro.data.titulo}
+              subtitulo={libro.data.subtitulo}
+              autores={autores}
+              etiqueta={coleccion?.data.nombre}
+              borrador={libro.data.estado !== 'publicado'}
+            >
+              <Tapa
+                slot="tapa"
+                titulo={libro.data.titulo}
+                autores={autores}
+                imagen={libro.data.tapa}
+                color={coleccion?.data.color}
+                coleccion={coleccion?.data.nombre}
+              />
+            </Ficha>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+</Base>

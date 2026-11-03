@@ -1,0 +1,58 @@
+---
+// Tarjeta para listados (libros, textos, artículos).
+interface Props {
+  href: string;
+  titulo: string;
+  subtitulo?: string;
+  autores?: string;
+  etiqueta?: string;
+  resumen?: string;
+  borrador?: boolean;
+}
+const { href, titulo, subtitulo, autores, etiqueta, resumen, borrador } = Astro.props;
+---
+
+<article class="ficha">
+  <slot name="tapa" />
+  {etiqueta && <span class="etiqueta">{etiqueta}</span>}
+  <h3 class="ficha__titulo"><a href={href}>{titulo}</a></h3>
+  {subtitulo && <p class="ficha__subtitulo">{subtitulo}</p>}
+  {autores && <p class="meta">{autores}</p>}
+  {resumen && <p class="ficha__resumen">{resumen}</p>}
+  {borrador && <p class="aviso-borrador">Borrador</p>}
+</article>
+
+<style>
+  .ficha {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+  .ficha :global(.tapa) {
+    margin-bottom: 0.75rem;
+    max-width: 14rem;
+  }
+  .ficha__titulo {
+    margin: 0;
+    font-size: 1.1rem;
+  }
+  .ficha__titulo a {
+    color: var(--tinta);
+    text-decoration: none;
+  }
+  .ficha__titulo a:hover {
+    color: var(--acento);
+  }
+  .ficha__subtitulo {
+    margin: 0;
+    font-family: var(--serif);
+    font-style: italic;
+    color: var(--tinta-2);
+  }
+  .ficha p {
+    margin: 0;
+  }
+  .ficha__resumen {
+    font-size: 0.95rem;
+  }
+</style>

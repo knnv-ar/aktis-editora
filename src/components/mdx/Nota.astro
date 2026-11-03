@@ -1,0 +1,35 @@
+---
+// <Nota tipo="info">Texto destacado</Nota>   tipo: info | aviso
+interface Props {
+  tipo?: 'info' | 'aviso';
+  titulo?: string;
+}
+const { tipo = 'info', titulo } = Astro.props;
+---
+
+<aside class:list={['nota', `nota--${tipo}`]}>
+  {titulo && <p class="nota__titulo">{titulo}</p>}
+  <slot />
+</aside>
+
+<style>
+  .nota {
+    margin: 1.75em 0;
+    padding: 0.9rem 1.1rem;
+    border-left: 4px solid var(--acento);
+    background: var(--acento-suave);
+    border-radius: 0 var(--radio) var(--radio) 0;
+    font-family: var(--sans);
+    font-size: 0.95rem;
+  }
+  .nota--aviso {
+    border-left-color: #b4432c;
+  }
+  .nota__titulo {
+    font-weight: 700;
+    margin: 0 0 0.25rem;
+  }
+  .nota :global(p:last-child) {
+    margin-bottom: 0;
+  }
+</style>

@@ -1,0 +1,199 @@
+---
+import '@fontsource-variable/literata';
+import '@fontsource-variable/literata/wght-italic.css';
+import '@fontsource-variable/inter';
+import '@fontsource-variable/jetbrains-mono';
+import '../styles/global.css';
+import { t, langDe, RUTAS } from '../i18n/ui';
+
+interface Props {
+  titulo?: string;
+  descripcion?: string;
+  /** URL de la versión en el otro idioma, si existe. */
+  alterna?: string;
+  /** Metadatos extra para buscadores académicos (citation_*), JSON-LD, etc. */
+  imagen?: string;
+}
+
+const lang = langDe(Astro.currentLocale);
+const otro = lang === 'es' ? 'en' : 'es';
+const { titulo, descripcion = t(lang, 'sitio.lema'), alterna = RUTAS.inicio[otro] } = Astro.props;
+const tituloCompleto = titulo ? `${titulo} · ${t(lang, 'sitio.nombre')}` : t(lang, 'sitio.nombre');
+const canonica = new URL(Astro.url.pathname, Astro.site);
+const ruta = Astro.url.pathname;
+const activa = (destino: string) => (ruta.startsWith(destino) && destino !== '/' ? 'page' : undefined);
+const tokenAnaliticas = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
+
+const nav = [
+  { href: RUTAS.libros[lang], texto: t(lang, 'nav.libros') },
+  { href: RUTAS.revistas[lang], texto: t(lang, 'nav.revistas') },
+  { href: RUTAS.textos[lang], texto: t(lang, 'nav.textos') },
+  { href: RUTAS.servicios[lang], texto: t(lang, 'nav.servicios') },
+  { href: RUTAS.acerca[lang], texto: t(lang, 'nav.acerca') },
+];
+---
+
+<!doctype html>
+<html lang={lang === 'es' ? 'es-AR' : 'en'}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{tituloCompleto}</title>
+    <meta name="description" content={descripcion} />
+    <link rel="canonical" href={canonica} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="alternate" type="application/rss+xml" title="Áktis Editora" href="/rss.xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Áktis Editora" />
+    <meta property="og:title" content={titulo ?? t(lang, 'sitio.nombre')} />
+    <meta property="og:description" content={descripcion} />
+    <meta property="og:url" content={canonica} />
+    {Astro.props.imagen && <meta property="og:image" content={new URL(Astro.props.imagen, Astro.site)} />}
+    <meta name="theme-color" content="#f7f3ec" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#17140f" media="(prefers-color-scheme: dark)" />
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="saltar" href="#contenido">{t(lang, 'nav.saltar')}</a>
+    <header class="cabecera">
+      <div class="contenedor cabecera__fila">
+        <a class="logo" href={RUTAS.inicio[lang]} aria-label="Áktis Editora — inicio">
+          <span class="logo__marca">Áktis</span>
+          <span class="logo__sub">Editora</span>
+        </a>
+        <nav aria-label="Principal">
+          <ul class="nav">
+            {nav.map((i) => (
+              <li>
+                <a href={i.href} aria-current={activa(i.href)}>
+                  {i.texto}
+                </a>
+              </li>
+            ))}
+            <li>
+              <a href={RUTAS.buscar[lang]} aria-current={activa(RUTAS.buscar[lang])}>
+                {t(lang, 'nav.buscar')}
+              </a>
+            </li>
+            <li>
+              <a href={alterna} hreflang={otro} lang={otro} class="nav__idioma">
+                {t(lang, 'idioma.otro')}
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main id="contenido" class="contenedor">
+      <slot />
+    </main>
+
+    <footer class="pie">
+      <div class="contenedor pie__fila">
+        <p>
+          <strong>Áktis Editora</strong> · Buenos Aires, Argentina<br />
+          {t(lang, 'pie.licencia')}
+        </p>
+        <p><a href="/rss.xml">{t(lang, 'pie.rss')}</a></p>
+      </div>
+    </footer>
+
+    {
+      tokenAnaliticas && (
+        <script
+          is:inline
+          defer
+          src="https://static.cloudflareinsights.com/beacon.min.js"
+          data-cf-beacon={JSON.stringify({ token: tokenAnaliticas })}
+        />
+      )
+    }
+  </body>
+</html>
+
+<style>
+  .cabecera {
+    border-bottom: 1px solid var(--linea);
+  }
+  .cabecera__fila {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem 2rem;
+    padding-block: 1.1rem;
+  }
+  .logo {
+    color: var(--tinta);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.4rem;
+  }
+  .logo__marca {
+    font-family: var(--serif);
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    position: relative;
+  }
+  /* El rayo de luz sobre la tilde */
+  .logo__marca::before {
+    content: '';
+    position: absolute;
+    left: 0.42em;
+    top: -0.12em;
+    width: 0.09em;
+    height: 0.42em;
+    background: var(--acento);
+    transform: rotate(32deg);
+    border-radius: 2px;
+  }
+  .logo__sub {
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--tinta-2);
+  }
+  .nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.95rem;
+  }
+  .nav a {
+    color: var(--tinta);
+    text-decoration: none;
+  }
+  .nav a:hover,
+  .nav a[aria-current='page'] {
+    color: var(--acento);
+  }
+  .nav__idioma {
+    color: var(--tinta-2) !important;
+    font-size: 0.85rem;
+  }
+  main {
+    padding-block: 2.5rem 4rem;
+    min-height: 60vh;
+  }
+  .pie {
+    border-top: 1px solid var(--linea);
+    background: var(--papel-2);
+    font-size: 0.875rem;
+    color: var(--tinta-2);
+  }
+  .pie__fila {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 1.5rem;
+  }
+</style>

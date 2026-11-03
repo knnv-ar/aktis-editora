@@ -1,0 +1,41 @@
+---
+// <Cita autor="Nombre" fuente="Obra, año">Texto citado</Cita>
+interface Props {
+  autor?: string;
+  fuente?: string;
+}
+const { autor, fuente } = Astro.props;
+---
+
+<figure class="cita">
+  <blockquote><slot /></blockquote>
+  {
+    (autor || fuente) && (
+      <figcaption>
+        — {autor}
+        {autor && fuente && ', '}
+        {fuente && <cite>{fuente}</cite>}
+      </figcaption>
+    )
+  }
+</figure>
+
+<style>
+  .cita {
+    margin: 2em 0;
+  }
+  blockquote {
+    margin: 0;
+    padding-left: 1.25em;
+    border-left: 3px solid var(--acento);
+    font-size: 1.05em;
+    font-style: italic;
+  }
+  figcaption {
+    margin-top: 0.5em;
+    padding-left: 1.25em;
+    font-family: var(--sans);
+    font-size: 0.875rem;
+    color: var(--tinta-2);
+  }
+</style>

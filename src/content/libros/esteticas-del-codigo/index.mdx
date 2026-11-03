@@ -1,0 +1,65 @@
+---
+tipo: libro
+titulo: "Estéticas del código"
+subtitulo: "Arte generativo en el siglo XXI"
+autores: [nombre-apellido]        # fichas en src/content/autores
+coleccion: aktis-ensayo
+idioma: es
+traducciones: { en: aesthetics-of-code }
+resumen: "Texto breve para la ficha y los buscadores."   # obligatorio
+resumen_en: "Short description in English."              # opcional
+palabras_clave: [arte generativo, p5.js, estética]
+palabras_clave_en: [generative art, p5.js, aesthetics]
+fecha_publicacion: 2027-03-15
+edicion: 1                         # sube con cambios de contenido, tapa o créditos
+version: "1.0.2"                   # correcciones menores, sin nueva edición
+isbn:                              # se valida el dígito de control
+  impreso: null
+  pdf: null
+  epub: null
+doi: null
+licencia: CC-BY-NC-SA-4.0          # la elige el autor
+referato: false
+# tapa: ./tapa.jpg                 # si falta, se genera con el color de la colección
+descargas:
+  pdf: true
+  epub: true
+impreso:
+  disponible: true
+  modalidad: a_demanda             # a_demanda | stock
+  formato: 14 × 21 cm
+  papel: obra 80 g
+  encuadernacion: rústica
+  interior_color: false
+  precio_ars: 18000
+  link_pago: "https://mpago.la/ejemplo"
+estado: borrador                   # borrador | en_revision | publicado
+---
+
+## Introducción
+
+Este es un libro de ejemplo para probar el sitio. Las notas al pie se escriben así.[^1]
+
+<Figura src="./img/diagrama.svg" alt="Diagrama de un sistema generativo: semilla, reglas y salida" pie="Figura 1. Esquema de un sistema generativo." />
+
+<YouTube id="aqz-KE-bpKQ" titulo="Video de ejemplo (Big Buck Bunny, Blender Foundation, CC BY 3.0)" />
+
+<Audio src="./audio/tono.mp3" titulo="Tono de prueba (440 Hz)" transcripcion="./audio/tono.txt" />
+
+<Nota titulo="Para tener en cuenta">
+Los componentes permitidos son YouTube, Audio, Figura, Nota, Cita y Codigo.
+</Nota>
+
+<Cita autor="Autor/a de ejemplo" fuente="Obra citada, 2026">
+El código es también una forma de escritura.
+</Cita>
+
+<Codigo titulo="sketch.js">
+```js
+function setup() {
+  createCanvas(400, 400);
+}
+```
+</Codigo>
+
+[^1]: Nota al pie de ejemplo.

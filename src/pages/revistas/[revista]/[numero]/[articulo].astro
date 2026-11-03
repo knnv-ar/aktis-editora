@@ -1,0 +1,75 @@
+---
+import { getEntry, render } from 'astro:content';
+import Lectura from '../../../../layouts/Lectura.astro';
+import Descargas from '../../../../components/ui/Descargas.astro';
+import { componentesMdx } from '../../../../components/mdx';
+import { articulos, autoresDe, formatoFecha } from '../../../../lib/contenido';
+import { t, type Clave } from '../../../../i18n/ui';
+
+export async function getStaticPaths() {
+  return (await articulos()).map(({ articulo, numero }) => {
+    const [revista, carpeta, slug] = articulo.id.split('/');
+    return { params: { revista, numero: carpeta, articulo: slug }, props: { articulo, numero } };
+  });
+}
+
+const { articulo, numero } = Astro.props;
+const d = articulo.data;
+const revista = await getEntry(numero.data.revista);
+const autores = await autoresDe(d.autores);
+Astro.locals.archivoEntrada = articulo.filePath;
+const { Content } = await render(articulo);
+const referato = { doble_ciego: 'Doble ciego', simple_ciego: 'Simple ciego', abierto: 'Abierto', ninguno: null }[d.referato];
+---
+
+<Lectura
+  titulo={d.titulo}
+  subtitulo={d.titulo_en}
+  etiqueta={`${revista?.data.nombre} · ${t('es', `revista.secciones.${d.seccion}` as Clave)}`}
+  autores={autores}
+  idioma={d.idioma}
+  fecha={numero.data.fecha_publicacion}
+  resumen={d.resumen}
+  resumen_en={d.resumen_en}
+  palabras_clave={d.palabras_clave}
+  palabras_clave_en={d.palabras_clave_en}
+  licencia={d.licencia}
+  borrador={d.estado !== 'publicado' || numero.data.estado !== 'publicado'}
+  tipoSchema="ScholarlyArticle"
+  citation={{
+    journal_title: revista?.data.nombre,
+    issn: revista?.data.issn_en_linea,
+    volume: numero.data.volumen,
+    issue: numero.data.numero,
+    doi: d.doi,
+  }}
+>
+  <Fragment slot="ficha">
+    <section>
+      <h2>Número</h2>
+      <p>
+        <a href={`/revistas/${numero.id}/`}>
+          Vol. {numero.data.volumen}, n.º {numero.data.numero} ({numero.data.anio})
+        </a>
+      </p>
+    </section>
+    {
+      referato && (
+        <section>
+          <h2>Referato</h2>
+          <p>{referato}</p>
+          {d.fechas?.recibido && <p>Recibido: {formatoFecha(d.fechas.recibido)}</p>}
+          {d.fechas?.aceptado && <p>Aceptado: {formatoFecha(d.fechas.aceptado)}</p>}
+        </section>
+      )
+    }
+    {d.doi && (
+      <section>
+        <h2>DOI</h2>
+        <p><a href={`https://doi.org/${d.doi}`}>{d.doi}</a></p>
+      </section>
+    )}
+    <Descargas descargas={d.descargas} />
+  </Fragment>
+  <Content components={componentesMdx} />
+</Lectura>

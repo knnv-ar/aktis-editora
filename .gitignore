@@ -1,0 +1,15 @@
+# Credenciales: nunca se suben al repositorio
+.secrets/
+.env
+.env.*
+.dev.vars
+
+# Dependencias y salidas de compilación
+node_modules/
+dist/
+.astro/
+.wrangler/
+
+# Sistema
+.DS_Store
+Thumbs.db

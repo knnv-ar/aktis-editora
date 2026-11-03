@@ -1,0 +1,43 @@
+---
+import Base from '../../layouts/Base.astro';
+import Ficha from '../../components/ui/Ficha.astro';
+import { textos, autoresDe, nombresDe, formatoFecha } from '../../lib/contenido';
+import { t } from '../../i18n/ui';
+
+const lista = await Promise.all(
+  (await textos()).map(async (x) => ({ texto: x, autores: nombresDe(await autoresDe(x.data.autores)) })),
+);
+---
+
+<Base titulo={t('es', 'lista.textos')}>
+  <h1>{t('es', 'lista.textos')}</h1>
+  {
+    lista.length === 0 ? (
+      <p>{t('es', 'lista.vacia')}</p>
+    ) : (
+      <ul class="lista-textos">
+        {lista.map(({ texto, autores }) => (
+          <li>
+            <Ficha
+              href={`/textos/${texto.id}/`}
+              titulo={texto.data.titulo}
+              autores={`${autores} · ${formatoFecha(texto.data.fecha_publicacion)}`}
+              resumen={texto.data.resumen}
+              borrador={texto.data.estado !== 'publicado'}
+            />
+          </li>
+        ))}
+      </ul>
+    )
+  }
+</Base>
+
+<style>
+  .lista-textos {
+    list-style: none;
+    padding: 0;
+    max-width: 44rem;
+    display: grid;
+    gap: 2rem;
+  }
+</style>

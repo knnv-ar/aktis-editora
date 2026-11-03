@@ -1,0 +1,11 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "aktis-editora",
+  "compatibility_date": "2026-10-01",
+  // Sitio estático: Cloudflare sirve directamente la carpeta dist/.
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page",
+    "html_handling": "auto-trailing-slash"
+  }
+}

@@ -1,0 +1,56 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { libros, textos, articulos } from '../../lib/contenido';
+import { t } from '../../i18n/ui';
+
+export async function getStaticPaths() {
+  const [ls, ts, as] = await Promise.all([libros(), textos(), articulos()]);
+  const tiene = (id: string) =>
+    [...ls, ...ts].some((p) => p.data.autores.some((a) => a.id === id)) ||
+    as.some((x) => x.articulo.data.autores.some((a) => a.id === id));
+  return (await getCollection('autores'))
+    .filter((a) => tiene(a.id))
+    .map((autor) => ({ params: { slug: autor.id }, props: { autor } }));
+}
+
+const { autor } = Astro.props;
+const a = autor.data;
+const de = (refs: { id: string }[]) => refs.some((r) => r.id === autor.id);
+const pubs = [
+  ...(await libros()).filter((l) => de(l.data.autores)).map((l) => ({ href: `/libros/${l.id}/`, titulo: l.data.titulo, tipo: 'Libro' })),
+  ...(await articulos())
+    .filter((x) => de(x.articulo.data.autores))
+    .map((x) => ({ href: `/revistas/${x.articulo.id}/`, titulo: x.articulo.data.titulo, tipo: 'Artículo' })),
+  ...(await textos()).filter((x) => de(x.data.autores)).map((x) => ({ href: `/textos/${x.id}/`, titulo: x.data.titulo, tipo: 'Texto' })),
+];
+---
+
+<Base titulo={a.nombre} descripcion={a.bio_es}>
+  <h1>{a.nombre}</h1>
+  {a.afiliaciones.length > 0 && <p class="meta">{a.afiliaciones.join(' · ')}</p>}
+  {a.bio_es && <p class="bio">{a.bio_es}</p>}
+  <p class="meta">
+    {a.orcid && <a href={`https://orcid.org/${a.orcid}`}>ORCID {a.orcid}</a>}
+    {a.orcid && a.web && ' · '}
+    {a.web && <a href={a.web}>Sitio web</a>}
+  </p>
+  <h2>{t('es', 'autor.publicaciones')}</h2>
+  <ul>
+    {
+      pubs.map((p) => (
+        <li>
+          <span class="etiqueta">{p.tipo}</span> <a href={p.href}>{p.titulo}</a>
+        </li>
+      ))
+    }
+  </ul>
+</Base>
+
+<style>
+  .bio {
+    font-family: var(--serif);
+    max-width: var(--ancho-texto);
+    font-size: 1.1rem;
+  }
+</style>

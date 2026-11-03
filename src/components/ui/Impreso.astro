@@ -1,0 +1,37 @@
+---
+import { t, langDe } from '../../i18n/ui';
+interface Props {
+  impreso: {
+    disponible: boolean;
+    formato?: string;
+    encuadernacion?: string;
+    precio_ars?: number;
+    link_pago?: string;
+  };
+}
+const lang = langDe(Astro.currentLocale);
+const { impreso } = Astro.props;
+const precio = impreso.precio_ars?.toLocaleString('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 });
+---
+
+{
+  impreso.disponible && (
+    <section>
+      <h2>{t(lang, 'pub.impreso')}</h2>
+      {impreso.formato && (
+        <p>
+          {impreso.formato}
+          {impreso.encuadernacion && ` · ${impreso.encuadernacion}`}
+        </p>
+      )}
+      {precio && <p><strong>{precio}</strong></p>}
+      {impreso.link_pago && (
+        <p>
+          <a class="boton" href={impreso.link_pago} rel="noopener">
+            {t(lang, 'pub.comprar')}
+          </a>
+        </p>
+      )}
+    </section>
+  )
+}

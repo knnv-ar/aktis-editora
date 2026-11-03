@@ -1,0 +1,210 @@
+---
+// Página de lectura de una publicación (libro, texto o artículo).
+// Incluye los metadatos que leen Google Scholar (citation_*) y otros indexadores.
+import Base from './Base.astro';
+import { t, langDe } from '../i18n/ui';
+import { NOMBRES_LICENCIA, urlLicencia, formatoFecha } from '../lib/contenido';
+
+interface Props {
+  titulo: string;
+  subtitulo?: string;
+  etiqueta?: string;
+  autores: { id: string; data: { nombre: string; orcid?: string | null } }[];
+  idioma: 'es' | 'en';
+  fecha: Date;
+  resumen: string;
+  resumen_en?: string;
+  palabras_clave: string[];
+  palabras_clave_en: string[];
+  licencia: string;
+  borrador?: boolean;
+  /** Metadatos citation_* adicionales (revista, volumen, ISBN…). */
+  citation?: Record<string, string | number | undefined | null>;
+  tipoSchema?: 'Book' | 'ScholarlyArticle' | 'Article';
+}
+
+const p = Astro.props;
+const lang = langDe(Astro.currentLocale);
+const urlLic = urlLicencia(p.licencia);
+const fechaIso = p.fecha.toISOString().slice(0, 10);
+const canonica = new URL(Astro.url.pathname, Astro.site).toString();
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': p.tipoSchema ?? 'Article',
+  name: p.titulo,
+  headline: p.titulo,
+  author: p.autores.map((a) => ({
+    '@type': 'Person',
+    name: a.data.nombre,
+    ...(a.data.orcid ? { sameAs: `https://orcid.org/${a.data.orcid}` } : {}),
+  })),
+  datePublished: fechaIso,
+  inLanguage: p.idioma,
+  abstract: p.resumen,
+  keywords: p.palabras_clave.join(', '),
+  license: urlLic ?? undefined,
+  isAccessibleForFree: true,
+  publisher: { '@type': 'Organization', name: 'Áktis Editora' },
+  url: canonica,
+};
+---
+
+<Base titulo={p.titulo} descripcion={p.resumen}>
+  <Fragment slot="head">
+    <meta name="citation_title" content={p.titulo} />
+    {p.autores.map((a) => <meta name="citation_author" content={a.data.nombre} />)}
+    <meta name="citation_publication_date" content={fechaIso.replaceAll('-', '/')} />
+    <meta name="citation_language" content={p.idioma} />
+    <meta name="citation_publisher" content="Áktis Editora" />
+    {p.palabras_clave.length > 0 && <meta name="citation_keywords" content={p.palabras_clave.join('; ')} />}
+    {
+      Object.entries(p.citation ?? {})
+        .filter(([, v]) => v !== undefined && v !== null && v !== '')
+        .map(([k, v]) => <meta name={`citation_${k}`} content={String(v)} />)
+    }
+    <meta name="DC.title" content={p.titulo} />
+    {p.autores.map((a) => <meta name="DC.creator" content={a.data.nombre} />)}
+    <meta name="DC.date" content={fechaIso} />
+    <meta name="DC.language" content={p.idioma} />
+    {urlLic && <meta name="DC.rights" content={urlLic} />}
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  </Fragment>
+
+  <article class="lectura" lang={p.idioma}>
+    <header class="lectura__cabecera">
+      {p.etiqueta && <span class="etiqueta">{p.etiqueta}</span>}
+      <h1 data-pagefind-meta="title">{p.titulo}</h1>
+      {p.subtitulo && <p class="lectura__subtitulo">{p.subtitulo}</p>}
+      <p class="lectura__autores">
+        {
+          p.autores.map((a, i) => (
+            <>
+              {i > 0 && ', '}
+              <a href={`/autores/${a.id}/`}>{a.data.nombre}</a>
+            </>
+          ))
+        }
+      </p>
+      <p class="meta">{t(lang, 'pub.publicado')} {formatoFecha(p.fecha, lang)}</p>
+      {p.borrador && <p class="aviso-borrador">{t(lang, 'pub.borrador')}</p>}
+    </header>
+
+    <div class="lectura__cuerpo">
+      <aside class="lectura__ficha" data-pagefind-ignore>
+        <slot name="ficha" />
+        <section>
+          <h2>{t(lang, 'pub.licencia')}</h2>
+          <p>
+            {urlLic ? <a href={urlLic} rel="license">{NOMBRES_LICENCIA[p.licencia]}</a> : NOMBRES_LICENCIA[p.licencia]}
+          </p>
+        </section>
+      </aside>
+
+      <div class="lectura__texto">
+        <section class="resumen">
+          <h2>{t(lang, 'pub.resumen')}</h2>
+          <p>{p.resumen}</p>
+          {p.palabras_clave.length > 0 && (
+            <p class="meta">
+              <strong>{t(lang, 'pub.palabras')}:</strong> {p.palabras_clave.join(' · ')}
+            </p>
+          )}
+          {
+            p.resumen_en && (
+              <div lang="en">
+                <h2>{t(lang, 'pub.abstract')}</h2>
+                <p>{p.resumen_en}</p>
+                {p.palabras_clave_en.length > 0 && (
+                  <p class="meta">
+                    <strong>Keywords:</strong> {p.palabras_clave_en.join(' · ')}
+                  </p>
+                )}
+              </div>
+            )
+          }
+        </section>
+
+        <div class="prosa" data-pagefind-body>
+          <slot />
+        </div>
+      </div>
+    </div>
+  </article>
+</Base>
+
+<style>
+  .lectura__cabecera {
+    max-width: 48rem;
+    margin-bottom: 2.5rem;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-size: clamp(2rem, 5vw, 3rem);
+    margin: 0.3rem 0;
+  }
+  .lectura__subtitulo {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 1.35rem;
+    margin: 0 0 0.75rem;
+    color: var(--tinta-2);
+  }
+  .lectura__autores {
+    font-size: 1.1rem;
+    margin: 0.5rem 0;
+  }
+  .lectura__cuerpo {
+    display: grid;
+    gap: 2.5rem;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  @media (min-width: 60rem) {
+    .lectura__cuerpo {
+      grid-template-columns: 15rem minmax(0, 1fr);
+    }
+    .lectura__ficha {
+      position: sticky;
+      top: 1.5rem;
+      align-self: start;
+    }
+  }
+  .lectura__ficha {
+    font-size: 0.9rem;
+  }
+  .lectura__ficha > :global(* + *) {
+    margin-top: 1.4rem;
+  }
+  .lectura__ficha :global(.tapa) {
+    max-width: 15rem;
+  }
+  .lectura__ficha :global(h2) {
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--tinta-2);
+    margin: 0 0 0.3rem;
+  }
+  .lectura__ficha :global(p) {
+    margin: 0.2rem 0;
+  }
+  .resumen {
+    max-width: var(--ancho-texto);
+    padding: 1.25rem 1.5rem;
+    background: var(--papel-2);
+    border-radius: var(--radio);
+    margin-bottom: 2.5rem;
+  }
+  .resumen h2 {
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin: 0 0 0.5rem;
+  }
+  .resumen div h2 {
+    margin-top: 1.25rem;
+  }
+  .resumen p {
+    margin: 0.4rem 0;
+  }
+</style>

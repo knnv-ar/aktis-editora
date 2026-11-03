@@ -1,0 +1,43 @@
+---
+// Envuelve un bloque de código para darle título o epígrafe:
+// <Codigo titulo="sketch.js">
+// ```js
+// function setup() {}
+// ```
+// </Codigo>
+interface Props {
+  titulo?: string;
+  pie?: string;
+}
+const { titulo, pie } = Astro.props;
+---
+
+<figure class="codigo">
+  {titulo && <div class="codigo__titulo">{titulo}</div>}
+  <slot />
+  {pie && <figcaption>{pie}</figcaption>}
+</figure>
+
+<style>
+  .codigo {
+    margin: 2em 0;
+  }
+  .codigo__titulo {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    background: var(--linea);
+    padding: 0.35rem 0.9rem;
+    border-radius: var(--radio) var(--radio) 0 0;
+  }
+  .codigo__titulo + :global(pre) {
+    margin-top: 0;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
+  figcaption {
+    margin-top: 0.5em;
+    font-family: var(--sans);
+    font-size: 0.85rem;
+    color: var(--tinta-2);
+  }
+</style>

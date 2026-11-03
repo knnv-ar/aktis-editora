@@ -1,0 +1,189 @@
+/* Áktis Editora — estilos base.
+   Papel cálido, tinta casi negra y un único acento ámbar (la luz). */
+
+:root {
+  --papel: #f7f3ec;
+  --papel-2: #efe8dc;
+  --tinta: #1f1b16;
+  --tinta-2: #5a5148;
+  --linea: #ddd3c4;
+  --acento: #9a5b00; /* ámbar oscuro, contraste AA sobre papel */
+  --acento-suave: #f3e3c7;
+
+  --serif: 'Literata Variable', Georgia, 'Times New Roman', serif;
+  --sans: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'JetBrains Mono Variable', ui-monospace, Consolas, monospace;
+
+  --ancho-texto: 40rem;
+  --ancho-sitio: 72rem;
+  --radio: 6px;
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --papel: #17140f;
+    --papel-2: #221d17;
+    --tinta: #ece5d8;
+    --tinta-2: #b3a898;
+    --linea: #3a3229;
+    --acento: #e0a24a;
+    --acento-suave: #3a2b16;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--papel);
+  color: var(--tinta);
+  font-family: var(--sans);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: var(--acento);
+  text-underline-offset: 0.15em;
+  text-decoration-thickness: 1px;
+}
+a:hover {
+  text-decoration-thickness: 2px;
+}
+:focus-visible {
+  outline: 2px solid var(--acento);
+  outline-offset: 2px;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--sans);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+img,
+video,
+svg {
+  max-width: 100%;
+  height: auto;
+}
+
+code,
+pre {
+  font-family: var(--mono);
+  font-size: 0.9em;
+}
+pre {
+  background: var(--papel-2);
+  border: 1px solid var(--linea);
+  border-radius: var(--radio);
+  padding: 1rem;
+  overflow-x: auto;
+  line-height: 1.5;
+}
+
+.contenedor {
+  width: min(100% - 2rem, var(--ancho-sitio));
+  margin-inline: auto;
+}
+
+.saltar {
+  position: absolute;
+  left: -999px;
+}
+.saltar:focus {
+  left: 1rem;
+  top: 1rem;
+  background: var(--papel);
+  padding: 0.5rem 1rem;
+  z-index: 10;
+}
+
+/* ---------- Texto de lectura ---------- */
+
+.prosa {
+  font-family: var(--serif);
+  font-size: 1.1875rem;
+  line-height: 1.7;
+  max-width: var(--ancho-texto);
+  hyphens: auto;
+}
+.prosa h2,
+.prosa h3 {
+  margin-top: 2.2em;
+}
+.prosa p,
+.prosa li {
+  text-wrap: pretty;
+}
+.prosa blockquote {
+  margin: 1.5em 0;
+  padding-left: 1.25em;
+  border-left: 3px solid var(--acento);
+  color: var(--tinta-2);
+}
+.prosa .footnotes {
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--linea);
+  font-size: 0.9em;
+}
+.prosa sup a {
+  text-decoration: none;
+}
+
+/* ---------- Utilidades ---------- */
+
+.meta {
+  font-size: 0.9rem;
+  color: var(--tinta-2);
+}
+.etiqueta {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--acento);
+}
+.aviso-borrador {
+  background: var(--acento-suave);
+  border: 1px dashed var(--acento);
+  border-radius: var(--radio);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+}
+.boton {
+  display: inline-block;
+  background: var(--acento);
+  color: var(--papel);
+  padding: 0.6rem 1.1rem;
+  border-radius: var(--radio);
+  text-decoration: none;
+  font-weight: 600;
+}
+.boton:hover {
+  filter: brightness(1.1);
+}
+.grilla {
+  display: grid;
+  gap: 2rem 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 13rem), 1fr));
+  padding: 0;
+  list-style: none;
+}

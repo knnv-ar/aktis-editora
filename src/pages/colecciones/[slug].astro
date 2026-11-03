@@ -1,0 +1,52 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Ficha from '../../components/ui/Ficha.astro';
+import Tapa from '../../components/ui/Tapa.astro';
+import { libros, autoresDe, nombresDe } from '../../lib/contenido';
+import { t } from '../../i18n/ui';
+
+export async function getStaticPaths() {
+  return (await getCollection('colecciones')).map((coleccion) => ({
+    params: { slug: coleccion.id },
+    props: { coleccion },
+  }));
+}
+
+const { coleccion } = Astro.props;
+const c = coleccion.data;
+const lista = await Promise.all(
+  (await libros())
+    .filter((l) => l.data.coleccion.id === coleccion.id)
+    .map(async (l) => ({ libro: l, autores: nombresDe(await autoresDe(l.data.autores)) })),
+);
+---
+
+<Base titulo={c.nombre} descripcion={c.descripcion_es}>
+  <span class="etiqueta" style={`color:${c.color}`}>{c.referato ? 'Con referato' : 'Colección'}</span>
+  <h1>{c.nombre}</h1>
+  <p class="descripcion">{c.descripcion_es}</p>
+  {
+    lista.length === 0 ? (
+      <p class="meta">{t('es', 'lista.vacia')}</p>
+    ) : (
+      <ul class="grilla">
+        {lista.map(({ libro, autores }) => (
+          <li>
+            <Ficha href={`/libros/${libro.id}/`} titulo={libro.data.titulo} subtitulo={libro.data.subtitulo} autores={autores}>
+              <Tapa slot="tapa" titulo={libro.data.titulo} autores={autores} imagen={libro.data.tapa} color={c.color} coleccion={c.nombre} />
+            </Ficha>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+</Base>
+
+<style>
+  .descripcion {
+    font-family: var(--serif);
+    font-size: 1.15rem;
+    max-width: var(--ancho-texto);
+  }
+</style>

@@ -1,0 +1,52 @@
+---
+import Base from '../../../layouts/Base.astro';
+import { revistas, numeros, autoresDe, nombresDe } from '../../../lib/contenido';
+import { t } from '../../../i18n/ui';
+
+export async function getStaticPaths() {
+  return (await revistas()).map((revista) => ({ params: { revista: revista.id }, props: { revista } }));
+}
+
+const { revista } = Astro.props;
+const r = revista.data;
+const nums = (await numeros()).filter((n) => n.data.revista.id === revista.id);
+const comite = nombresDe(await autoresDe(r.comite_editorial));
+const referato = { doble_ciego: 'doble ciego', simple_ciego: 'simple ciego', abierto: 'abierto', ninguno: 'sin referato' }[r.referato];
+---
+
+<Base titulo={r.nombre}>
+  <span class="etiqueta">Revista</span>
+  <h1>{r.nombre}</h1>
+  <p class="meta">
+    Periodicidad {r.periodicidad} · Referato {referato}
+    {r.issn_en_linea && ` · ISSN en línea ${r.issn_en_linea}`}
+    {r.issn_impreso && ` · ISSN impreso ${r.issn_impreso}`}
+  </p>
+  {comite && <p>Comité editorial: {comite}</p>}
+
+  <h2>{t('es', 'revista.numeros')}</h2>
+  <ul class="numeros">
+    {
+      nums.map((n) => (
+        <li>
+          <a href={`/revistas/${n.id}/`}>
+            Vol. {n.data.volumen}, n.º {n.data.numero} ({n.data.anio}) — {n.data.titulo}
+          </a>
+          {n.data.estado !== 'publicado' && <span class="aviso-borrador">Borrador</span>}
+        </li>
+      ))
+    }
+  </ul>
+</Base>
+
+<style>
+  .numeros {
+    padding-left: 1.2rem;
+    display: grid;
+    gap: 0.5rem;
+  }
+  .numeros .aviso-borrador {
+    margin-left: 0.5rem;
+    padding: 0 0.4rem;
+  }
+</style>

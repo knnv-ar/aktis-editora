@@ -1,0 +1,36 @@
+---
+import { render } from 'astro:content';
+import Lectura from '../../layouts/Lectura.astro';
+import Descargas from '../../components/ui/Descargas.astro';
+import { componentesMdx } from '../../components/mdx';
+import { textos, autoresDe } from '../../lib/contenido';
+
+export async function getStaticPaths() {
+  return (await textos()).map((texto) => ({ params: { slug: texto.id }, props: { texto } }));
+}
+
+const { texto } = Astro.props;
+const d = texto.data;
+const autores = await autoresDe(d.autores);
+Astro.locals.archivoEntrada = texto.filePath;
+const { Content } = await render(texto);
+---
+
+<Lectura
+  titulo={d.titulo}
+  etiqueta="Texto"
+  autores={autores}
+  idioma={d.idioma}
+  fecha={d.fecha_publicacion}
+  resumen={d.resumen}
+  resumen_en={d.resumen_en}
+  palabras_clave={d.palabras_clave}
+  palabras_clave_en={d.palabras_clave_en}
+  licencia={d.licencia}
+  borrador={d.estado !== 'publicado'}
+>
+  <Fragment slot="ficha">
+    <Descargas descargas={d.descargas} />
+  </Fragment>
+  <Content components={componentesMdx} />
+</Lectura>

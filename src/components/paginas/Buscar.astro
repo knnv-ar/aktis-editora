@@ -1,0 +1,40 @@
+---
+import Base from '../../layouts/Base.astro';
+import { t, RUTAS, type Lang } from '../../i18n/ui';
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const otro = lang === 'es' ? 'en' : 'es';
+---
+
+<Base titulo={t(lang, 'buscar.titulo')} alterna={RUTAS.buscar[otro]}>
+  <Fragment slot="head">
+    <link href="/pagefind/pagefind-ui.css" rel="stylesheet" />
+  </Fragment>
+  <h1>{t(lang, 'buscar.titulo')}</h1>
+  <p class="meta">{t(lang, 'buscar.ayuda')}</p>
+  <div id="buscador" data-lang={lang}></div>
+  <noscript>La búsqueda necesita JavaScript.</noscript>
+  <script is:inline src="/pagefind/pagefind-ui.js"></script>
+  <script is:inline>
+    window.addEventListener('DOMContentLoaded', () => {
+      const el = document.getElementById('buscador');
+      // eslint-disable-next-line no-undef
+      new PagefindUI({ element: '#buscador', showSubResults: true, showImages: false, translations: el.dataset.lang === 'es' ? { placeholder: 'Buscar en Áktis…', zero_results: 'Sin resultados para [SEARCH_TERM]' } : {} });
+    });
+  </script>
+</Base>
+
+<style is:global>
+  #buscador {
+    --pagefind-ui-primary: var(--acento);
+    --pagefind-ui-text: var(--tinta);
+    --pagefind-ui-background: var(--papel);
+    --pagefind-ui-border: var(--linea);
+    --pagefind-ui-tag: var(--papel-2);
+    --pagefind-ui-font: var(--sans);
+    max-width: 48rem;
+    margin-top: 1.5rem;
+  }
+</style>

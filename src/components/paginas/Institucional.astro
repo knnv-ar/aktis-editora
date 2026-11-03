@@ -1,0 +1,36 @@
+---
+// Renderiza una página de src/content/paginas/<idioma>/<nombre>.mdx
+import { getEntry, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { componentesMdx } from '../mdx';
+import type { Lang } from '../../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  nombre: string;
+  alterna: string;
+}
+const { lang, nombre, alterna } = Astro.props;
+const pagina = await getEntry('paginas', `${lang}/${nombre}`);
+if (!pagina) throw new Error(`Falta la página src/content/paginas/${lang}/${nombre}.mdx`);
+Astro.locals.archivoEntrada = pagina.filePath;
+const { Content } = await render(pagina);
+---
+
+<Base titulo={pagina.data.titulo} descripcion={pagina.data.descripcion} alterna={alterna}>
+  <h1>{pagina.data.titulo}</h1>
+  <div class="prosa institucional" data-pagefind-body>
+    <Content components={componentesMdx} />
+  </div>
+</Base>
+
+<style>
+  h1 {
+    font-family: var(--serif);
+    font-size: clamp(2rem, 5vw, 2.8rem);
+  }
+  .institucional :global(h2) {
+    font-family: var(--sans);
+    font-size: 1.3rem;
+  }
+</style>

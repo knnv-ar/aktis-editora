@@ -1,0 +1,72 @@
+---
+import { getEntry, render } from 'astro:content';
+import Lectura from '../../layouts/Lectura.astro';
+import Tapa from '../../components/ui/Tapa.astro';
+import Descargas from '../../components/ui/Descargas.astro';
+import Impreso from '../../components/ui/Impreso.astro';
+import { componentesMdx } from '../../components/mdx';
+import { libros, autoresDe, nombresDe } from '../../lib/contenido';
+import { t } from '../../i18n/ui';
+
+export async function getStaticPaths() {
+  return (await libros()).map((libro) => ({ params: { slug: libro.id }, props: { libro } }));
+}
+
+const { libro } = Astro.props;
+const d = libro.data;
+const autores = await autoresDe(d.autores);
+const coleccion = await getEntry(d.coleccion);
+Astro.locals.archivoEntrada = libro.filePath;
+const { Content } = await render(libro);
+---
+
+<Lectura
+  titulo={d.titulo}
+  subtitulo={d.subtitulo}
+  etiqueta={coleccion?.data.nombre}
+  autores={autores}
+  idioma={d.idioma}
+  fecha={d.fecha_publicacion}
+  resumen={d.resumen}
+  resumen_en={d.resumen_en}
+  palabras_clave={d.palabras_clave}
+  palabras_clave_en={d.palabras_clave_en}
+  licencia={d.licencia}
+  borrador={d.estado !== 'publicado'}
+  tipoSchema="Book"
+  citation={{ isbn: d.isbn?.pdf ?? d.isbn?.impreso, doi: d.doi }}
+>
+  <Fragment slot="ficha">
+    <Tapa
+      titulo={d.titulo}
+      autores={nombresDe(autores)}
+      imagen={d.tapa}
+      color={coleccion?.data.color}
+      coleccion={coleccion?.data.nombre}
+    />
+    {
+      coleccion && (
+        <section>
+          <h2>{t('es', 'pub.coleccion')}</h2>
+          <p>
+            <a href={`/colecciones/${coleccion.id}/`}>{coleccion.data.nombre}</a>
+          </p>
+        </section>
+      )
+    }
+    <section>
+      <h2>{t('es', 'pub.edicion')}</h2>
+      <p>
+        {d.edicion}.ª edición{d.version && ` · v${d.version}`}
+      </p>
+      {d.isbn?.impreso && <p>ISBN impreso: {d.isbn.impreso}</p>}
+      {d.isbn?.pdf && <p>ISBN PDF: {d.isbn.pdf}</p>}
+      {d.isbn?.epub && <p>ISBN EPUB: {d.isbn.epub}</p>}
+      {d.doi && <p>DOI: <a href={`https://doi.org/${d.doi}`}>{d.doi}</a></p>}
+    </section>
+    <Descargas descargas={d.descargas} />
+    <Impreso impreso={d.impreso} />
+  </Fragment>
+
+  <Content components={componentesMdx} />
+</Lectura>

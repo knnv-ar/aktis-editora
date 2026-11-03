@@ -1,0 +1,13 @@
+nombre: "Nombre de la revista"
+slug: nombre-revista
+issn_en_linea: "XXXX-XXXX"
+issn_impreso: null
+periodicidad: semestral
+idiomas: [es, en]
+referato: doble_ciego
+comite_editorial: [nombre-apellido]
+comite_cientifico: []
+politicas:
+  acceso_abierto: true
+  licencia_por_defecto: CC-BY-4.0
+  cargos_a_autores: false

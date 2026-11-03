@@ -1,0 +1,7 @@
+nombre: "Áktis Manuales"
+slug: aktis-manuales
+referato: false
+color: "#3E6B4F"
+orden: 4
+descripcion_es: "Cuadernos de cátedra y tutoriales de código (p5.js, Godot, Pure Data), actualizables por ediciones."
+descripcion_en: "Course notebooks and coding tutorials (p5.js, Godot, Pure Data), updated by editions."
